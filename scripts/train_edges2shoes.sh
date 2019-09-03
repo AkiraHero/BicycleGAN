@@ -18,7 +18,7 @@ CHECKPOINTS_DIR=../checkpoints/${CLASS}/
 NAME=${CLASS}_${MODEL}
 
 # command
-CUDA_VISIBLE_DEVICES=${GPU_ID} python ./train.py \
+CUDA_VISIBLE_DEVICES=${GPU_ID} python3.6 ./train.py \
   --display_id ${DISPLAY_ID} \
   --dataroot ./datasets/${CLASS} \
   --name ${NAME} \
