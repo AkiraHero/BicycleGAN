@@ -18,7 +18,44 @@ from data import create_dataset
 from models import create_model
 from util.visualizer import Visualizer
 
+
+# CUDA_VISIBLE_DEVICES=${GPU_ID} python3.6 ./train.py \
+#   --display_id ${DISPLAY_ID} \
+#   --dataroot ./datasets/${CLASS} \
+#   --name ${NAME} \
+#   --model ${MODEL} \
+#   --direction ${DIRECTION} \
+#   --checkpoints_dir ${CHECKPOINTS_DIR} \
+#   --load_size ${LOAD_SIZE} \
+#   --crop_size ${CROP_SIZE} \
+#   --nz ${NZ} \
+#   --input_nc ${INPUT_NC} \
+#   --niter ${NITER} \
+#   --niter_decay ${NITER_DECAY} \
+#   --use_dropout
+optlist =[
+    '--dataroot','./datasets/edges2shoes',
+    '--display_id', '1',
+    '--name', 'edges2shoes',
+    '--model', 'bicycle_gan',
+    '--direction', 'AtoB',
+    '--checkpoints_dir', '.',
+    '--load_size', '256',
+    '--crop_size', '256',
+    '--nz','8',
+    '--input_nc','1',
+    '--niter','30',
+    '--niter_decay','30',
+    '--use_dropout',
+    '--dataset_mode', 'hh',
+    '--output_nc', '1'
+]
+
+
 if __name__ == '__main__':
+    import sys
+    for i in optlist:
+        sys.argv.append(i)
     opt = TrainOptions().parse()   # get training options
     dataset = create_dataset(opt)  # create a dataset given opt.dataset_mode and other options
     dataset_size = len(dataset)    # get the number of images in the dataset.

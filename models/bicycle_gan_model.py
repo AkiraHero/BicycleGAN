@@ -69,7 +69,8 @@ class BiCycleGANModel(BaseModel):
         AtoB = self.opt.direction == 'AtoB'
         self.real_A = input['A' if AtoB else 'B'].to(self.device)
         self.real_B = input['B' if AtoB else 'A'].to(self.device)
-        self.image_paths = input['A_paths' if AtoB else 'B_paths']
+        if 'A_paths' in input:
+            self.image_paths = input['A_paths' if AtoB else 'B_paths']
 
     def get_z_random(self, batch_size, nz, random_type='gauss'):
         if random_type == 'uni':
