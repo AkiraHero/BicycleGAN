@@ -80,10 +80,17 @@ class hhDataset(BaseDataset):
         dic = self.rimgdataset[index]
         A = dic['rimg32']
         B = dic['rimg128']
-        A = A.unsqueeze(0).float()
+        A = A[:, :256]
+        B = B[:, :256]
+        A_ = B.clone()*0
+        col = [(i,i * 4) for i in range(32)]
+        for c in col:
+            A_[c[1]:, :] = A[c[0], :]
+
+        A_ = A_.unsqueeze(0).float()
         B = B.unsqueeze(0).float()
 
-        return {'A': A, 'B': B}
+        return {'A': A_, 'B': B}
 
     def __len__(self):
         """Return the total number of images in the dataset."""

@@ -51,11 +51,35 @@ optlist =[
     '--output_nc', '1'
 ]
 
+# optlist =[
+#     '--dataroot','./datasets/edges2shoes',
+#     '--display_id', '1',
+#     '--name', 'edges2shoes',
+#     '--model', 'bicycle_gan',
+#     '--direction', 'AtoB',
+#     '--checkpoints_dir', '.',
+#     '--load_size', '256',
+#     '--crop_size', '256',
+#     '--nz','8',
+#     '--input_nc','3',
+#     '--niter','30',
+#     '--niter_decay','30',
+#     '--use_dropout',
+#     '--dataset_mode', 'aligned',
+#     '--output_nc', '1'
+# ]
+
 
 if __name__ == '__main__':
     import sys
     for i in optlist:
         sys.argv.append(i)
+    import os
+    # os.environ['CUDA_HOME'] = '/home/akira/software/cuda9.2'
+    # os.environ['LD_LIBRARY_PATH'] = os.environ['LD_LIBRARY_PATH'] + "：/home/akira/software/cuda9.2/lib64"
+    # os.environ['PATH'] = os.environ['PATH']+":/home/akira/software/cuda9.2/bin"
+    # import torch
+    # print(torch.version.cuda)
     opt = TrainOptions().parse()   # get training options
     dataset = create_dataset(opt)  # create a dataset given opt.dataset_mode and other options
     dataset_size = len(dataset)    # get the number of images in the dataset.

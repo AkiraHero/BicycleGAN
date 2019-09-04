@@ -138,6 +138,9 @@ def define_G(input_nc, output_nc, nz, ngf, netG='unet_128', norm='batch', nl='re
     elif netG == 'unet_256' and where_add == 'all':
         net = G_Unet_add_all(input_nc, output_nc, nz, 8, ngf, norm_layer=norm_layer, nl_layer=nl_layer,
                              use_dropout=use_dropout, upsample=upsample)
+    elif netG == 'unet_32' and where_add == 'all':
+        net = G_Unet_add_all(input_nc, output_nc, nz, 4, ngf, norm_layer=norm_layer, nl_layer=nl_layer,
+                             use_dropout=use_dropout, upsample=upsample)
     else:
         raise NotImplementedError('Generator model name [%s] is not recognized' % net)
 
@@ -626,20 +629,31 @@ class E_ResNet(nn.Module):
         super(E_ResNet, self).__init__()
         self.vaeLike = vaeLike
         max_ndf = 4
-        conv_layers = [
+        self.conv_layers = [
             nn.Conv2d(input_nc, ndf, kernel_size=4, stride=2, padding=1, bias=True)]
         for n in range(1, n_blocks):
             input_ndf = ndf * min(max_ndf, n)
             output_ndf = ndf * min(max_ndf, n + 1)
-            conv_layers += [BasicBlock(input_ndf,
+            self.conv_layers += [BasicBlock(input_ndf,
                                        output_ndf, norm_layer, nl_layer)]
-        conv_layers += [nl_layer(), nn.AvgPool2d(8)]
+        # modify the average pooling for 128*313 input
+        self.conv_layers += [nl_layer(), nn.AvgPool2d(kernel_size=4, stride=8)]
         if vaeLike:
             self.fc = nn.Sequential(*[nn.Linear(output_ndf, output_nc)])
             self.fcVar = nn.Sequential(*[nn.Linear(output_ndf, output_nc)])
         else:
             self.fc = nn.Sequential(*[nn.Linear(output_ndf, output_nc)])
-        self.conv = nn.Sequential(*conv_layers)
+        self.conv = nn.Sequential(*self.conv_layers)
+
+    # def conv(self, x):
+    #     cnt = 0
+    #     print(x.shape)
+    #     for i in self.conv_layers:
+    #         x = i.cuda()(x)
+    #         print(i)
+    #         print(cnt, x.shape)
+    #         cnt += 1
+    #     return x
 
     def forward(self, x):
         x_conv = self.conv(x)
@@ -663,13 +677,17 @@ class G_Unet_add_all(nn.Module):
         super(G_Unet_add_all, self).__init__()
         self.nz = nz
         # construct unet structure
+        #innermost: the bottom of the U
+
         unet_block = UnetBlock_with_z(ngf * 8, ngf * 8, ngf * 8, nz, None, innermost=True,
                                       norm_layer=norm_layer, nl_layer=nl_layer, upsample=upsample)
-        unet_block = UnetBlock_with_z(ngf * 8, ngf * 8, ngf * 8, nz, unet_block,
-                                      norm_layer=norm_layer, nl_layer=nl_layer, use_dropout=use_dropout, upsample=upsample)
-        for i in range(num_downs - 6):
+
+        # unet_block = UnetBlock_with_z(ngf * 8, ngf * 8, ngf * 8, nz, unet_block,
+        #                               norm_layer=norm_layer, nl_layer=nl_layer, use_dropout=use_dropout, upsample=upsample)
+        for i in range(num_downs - 5):
             unet_block = UnetBlock_with_z(ngf * 8, ngf * 8, ngf * 8, nz, unet_block,
                                           norm_layer=norm_layer, nl_layer=nl_layer, use_dropout=use_dropout, upsample=upsample)
+
         unet_block = UnetBlock_with_z(ngf * 4, ngf * 4, ngf * 8, nz, unet_block,
                                       norm_layer=norm_layer, nl_layer=nl_layer, upsample=upsample)
         unet_block = UnetBlock_with_z(ngf * 2, ngf * 2, ngf * 4, nz, unet_block,
@@ -684,6 +702,7 @@ class G_Unet_add_all(nn.Module):
         return self.model(x, z)
 
 
+# submodule means: sub-unet
 class UnetBlock_with_z(nn.Module):
     def __init__(self, input_nc, outer_nc, inner_nc, nz=0,
                  submodule=None, outermost=False, innermost=False,
