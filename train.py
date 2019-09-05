@@ -33,6 +33,8 @@ from util.visualizer import Visualizer
 #   --niter ${NITER} \
 #   --niter_decay ${NITER_DECAY} \
 #   --use_dropout
+
+#--num_Ds=4 increase the sensitivity of patch-gan discriminator
 optlist =[
     '--dataroot','./datasets/edges2shoes',
     '--display_id', '1',
@@ -48,7 +50,8 @@ optlist =[
     '--niter_decay','30',
     '--use_dropout',
     '--dataset_mode', 'hh',
-    '--output_nc', '1'
+    '--output_nc', '1',
+    '--num_Ds', '4'
 ]
 
 # optlist =[
