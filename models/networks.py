@@ -734,7 +734,9 @@ class UnetBlock_with_z(nn.Module):
             upconv = upsampleLayer(
                 inner_nc * 2, outer_nc, upsample=upsample, padding_type=padding_type)
             down = downconv
-            up = [uprelu] + upconv + [nn.Tanh()]
+            # up = [uprelu] + upconv + [nn.Tanh()]
+            # for the scale of output: distance(0-50)
+            up = [uprelu] + upconv + [uprelu]
         elif innermost:
             upconv = upsampleLayer(
                 inner_nc, outer_nc, upsample=upsample, padding_type=padding_type)
