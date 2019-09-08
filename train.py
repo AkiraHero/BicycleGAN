@@ -51,7 +51,8 @@ optlist =[
     '--use_dropout',
     '--dataset_mode', 'hh',
     '--output_nc', '1',
-    '--num_Ds', '2'
+    '--num_Ds', '2',
+    '--display_port', '8096'
 ]
 
 # optlist =[
